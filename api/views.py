@@ -18,17 +18,21 @@ def number(request):
     return JsonResponse(result)
 
 
-def output(status, *argv):
-    result = {'status': http.HTTPStatus[status], 'message': HttpResponse.status_code}
-    if argv:
-        result.update({'num_to_english': argv[0]})
-    return result
-
-
 def validate(num: int) -> int:
     return type(num) is int
 
 
 def parse_int(num: int) -> str:
     result = num2words(num)
+    return result
+
+
+def parse_status(status):
+    return str(http.HTTPStatus[status].value) + ' ' + http.HTTPStatus[status].phrase
+
+
+def output(status, *argv):
+    result = {'status': parse_status(status)}
+    if argv:
+        result.update({'num_to_english': argv[0]})
     return result
