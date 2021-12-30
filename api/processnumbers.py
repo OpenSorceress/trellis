@@ -1,7 +1,6 @@
 import re
 
 
-
 class ProcessNumbers:
 
     def __init__(self):
@@ -112,5 +111,5 @@ class ProcessNumbers:
 
         return result
 
-#pn = ProcessNumbers()
-#result = pn.get_words(data)
+# pn = ProcessNumbers()
+# result = pn.get_words(data)
