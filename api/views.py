@@ -1,30 +1,48 @@
 import http
 
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from num2words import num2words
 from rest_framework.decorators import api_view
+from rest_framework.parsers import JSONParser
 
 
-@api_view(["POST"])
+@api_view(["GET", "POST"])
 def number(request):
-    parsed, num, status_code = None, request.data['number'], "BAD_REQUEST"
-    if validate(num):
-        status_code = "OK"
-        parsed = parse_int(num)
+    data, parsed, status = {}, None, ''
+    data = get_data(request)
+    if _validate(data):
+        status = "OK"
+        parsed = parse_num(data)
     if not parsed:
-        result = output(status_code)
+        status = "BAD_REQUEST"
+        result = output(status)
     else:
-        result = output(status_code, parsed)
+        result = output(status, parsed)
     return JsonResponse(result)
 
 
-def validate(num: int) -> int:
-    return type(num) is int
+def _validate(num: int) -> bool:
+    valid = False
+    try:
+        type(num) is int or int(num)
+        valid = True
+    except (TypeError, ValueError):
+        pass
+    finally:
+        return valid
 
 
-def parse_int(num: int) -> str:
-    result = num2words(num)
-    return result
+def get_data(request):
+    data = {}
+    if request.method == 'GET':
+        data = request.query_params.get('number', None)
+    elif request.method == 'POST':
+        data = JSONParser().parse(request)
+    return data
+
+
+def parse_num(num: int) -> str:
+    return num2words(num)
 
 
 def parse_status(status):
