@@ -8,24 +8,26 @@ from rest_framework.parsers import JSONParser
 
 @api_view(["GET", "POST"])
 def number(request):
-    data, parsed, status = {}, None, ''
+    data, parsed, status_phrase = {}, None, ''
     data = get_data(request)
     if _validate(data):
-        status = "OK"
+        status_phrase = "OK"
         parsed = parse_num(data)
     if not parsed:
-        status = "BAD_REQUEST"
-        result = output(status)
+        status_phrase = "BAD_REQUEST"
+        result = output(status_phrase)
     else:
-        result = output(status, parsed)
-    return JsonResponse(result)
+        result = output(status_phrase, parsed)
+    return JsonResponse(result, status=http.HTTPStatus[status_phrase].value)
 
 
 def _validate(num: int) -> bool:
     valid = False
     try:
-        type(num) is int or int(num)
-        valid = True
+        if type(num) is int or int(num):
+            valid = True
+        elif type(num) is dict and type(num['number']) is int:
+            valid = True
     except (TypeError, ValueError):
         pass
     finally:
@@ -38,6 +40,8 @@ def get_data(request):
         data = request.query_params.get('number', None)
     elif request.method == 'POST':
         data = JSONParser().parse(request)
+        if type(data) is dict and dict['number']:
+            data = data['number']
     return data
 
 
@@ -45,12 +49,8 @@ def parse_num(num: int) -> str:
     return num2words(num)
 
 
-def parse_status(status):
-    return str(http.HTTPStatus[status].value) + ' ' + http.HTTPStatus[status].phrase
-
-
-def output(status, *argv):
-    result = {'status': parse_status(status)}
+def output(status_phrase, *argv):
+    result = {'reason_phrase': http.HTTPStatus[status_phrase].phrase}
     if argv:
-        result.update({'num_to_english': argv[0]})
+        result.update({'num_in_english': argv[0]})
     return result
