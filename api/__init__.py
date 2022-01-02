@@ -1,10 +1,10 @@
-# from rest_framework.exceptions import APIException
+from rest_framework.exceptions import APIException
 
 
-# def handle_exception(self, exc: Exception, action: str, request_id):
-# """
-# Handle any exception that occurs, by sending an appropriate message
-# """
+def handle_exception(self, exc: Exception, action: str, request_id):
+ """
+Handle any exception that occurs, by sending an appropriate message
+"""
 # if isinstance(exc, APIException):
 #     self.reply(
 #         action=action,
